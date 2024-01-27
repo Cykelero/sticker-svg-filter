@@ -27,9 +27,24 @@
 		<!-- Filter -->
 		<svg style="position: fixed; pointer-events: none; left: -1000px">
 			<filter id="sticker-effect">
+				<!--
+					Tweakable values:
+					- alpha-threshold
+					
+					- plate-radius
+					- plate-color
+					
+					- shadow-color
+					- shadow-radius
+					
+					- outline-radius
+					- outline-color
+				-->
+				
 				<!-- # Base plate -->
 				<!-- ## Thresholded image -->
 				<!-- Only keep very opaque parts of image: Clip lower alpha, then boost remaining alpha -->
+				<!-- tweakable “alpha-threshold”: the last value in values. Ranges from -1 to 0. Sets what parts of the image to include, based on opacity. E.g. -0.8 means that only parts of the image with at least 80% opacity receive the sticker background. -->
 				<feColorMatrix
 					type="matrix"
 					values="
@@ -49,6 +64,7 @@
 				
 				<!-- ## Mask -->
 				<!-- Blur, then only keep strongest parts (clip lower alpha, then boost remaining alpha) -->
+				<!-- tweakable “plate-radius”: the stdDeviation value. Sets the thickness of the sticker, in half-pixels. E.g. 10 means a 20px sticker border. -->
 				<feGaussianBlur stdDeviation="10" in="base-plate--thresholded-image" />
 				
 				<feColorMatrix
@@ -75,18 +91,22 @@
 				</feComponentTransfer>
 				
 				<!-- ## Result -->
+				<!-- tweakable “plate-color”: the floor-color value. Sets the color of the sticker. -->
 				<feFlood flood-color="white" />
 				<feComposite operator="in" in2="base-plate--smoothed-mask" result="base-plate" />
 				
 				<!-- # Base plate shadow -->
+				<!-- tweakable “shadow-color”: the floor-color value. Sets the color and opacity of the shadow. -->
 				<feFlood flood-color="#00000033" result="base-plate--flood" />
 				
+				<!-- tweakable “shadow-radius”: the stdDeviation value. Sets the blur radius of the shadow. -->
 				<feGaussianBlur stdDeviation="15" in="base-plate" />				
 				<feComposite operator="in" in="base-plate--flood" result="base-plate-shadow" />
 				
 				<!-- # Outline -->
 				<!-- ## Mask -->
 				<!-- Blur, then only keep strongest parts (clip lower alpha, then boost remaining alpha) -->
+				<!-- tweakable “outline-radius”: the stdDeviation value. Sets the thickness of the outline, in half-pixels. E.g. 10 means a 20px outline. -->
 				<feGaussianBlur stdDeviation="1.5" in="base-plate" />
 				
 				<feColorMatrix
@@ -114,6 +134,7 @@
 				
 				<!-- ## Result -->
 				<feFlood flood-color="#00000021" />
+				<!-- tweakable “outline-color”: the floor-color value. Sets the color of the outline. -->
 				<feComposite operator="in" in2="outline--smoothed-mask" result="outline" />
 				
 				<!-- # Combine all -->
