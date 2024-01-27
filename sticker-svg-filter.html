@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			document {
+				background-color: rgb(245, 245, 245);
+			}
+			
+			.test-element {
+				display: block;
+				margin: auto;
+				margin-top: 80px;
+			}
+			
+			.sticker-effect {
+				filter: url("#sticker-effect");
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Content -->
+		<img src="test-bagel.png" class="test-element sticker-effect">
+		
+		<!-- Filter -->
+		<svg style="position: fixed; pointer-events: none; left: -1000px">
+			<filter id="sticker-effect">
+				<!-- # Base plate -->
+				<!-- ## Mask -->
+				<!-- Blur, then only keep strongest parts (clip lower alpha, then boost remaining alpha) -->
+				<feGaussianBlur stdDeviation="10" in="SourceGraphic" />
+				
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 1 -0.01
+					" />
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 100 0
+					" result="base-plate--mask" />
+				
+				<!-- ## Smoothed mask -->
+				<feGaussianBlur stdDeviation="1" in="base-plate--mask" />
+				<feComponentTransfer result="base-plate--smoothed-mask">
+					<feFuncA type="table" tableValues="0 0 0 0 0 1 1 1 1 1" />
+				</feComponentTransfer>
+				
+				<!-- ## Result -->
+				<feFlood flood-color="white" />
+				<feComposite operator="in" in2="base-plate--smoothed-mask" result="base-plate" />
+				
+				<!-- # Base plate shadow -->
+				<feFlood flood-color="#00000033" result="base-plate--flood" />
+				
+				<feGaussianBlur stdDeviation="15" in="base-plate" />				
+				<feComposite operator="in" in="base-plate--flood" result="base-plate-shadow" />
+				
+				<!-- # Outline -->
+				<!-- ## Mask -->
+				<!-- Blur, then only keep strongest parts (clip lower alpha, then boost remaining alpha) -->
+				<feGaussianBlur stdDeviation="1.5" in="base-plate" />
+				
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 1 -0.01
+					" />
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 100 0
+					" result="outline--mask" />
+				
+				<!-- ## Smoothed mask -->
+				<feGaussianBlur stdDeviation="1" in="outline--mask" />
+				<feComponentTransfer result="outline--smoothed-mask">
+					<feFuncA type="table" tableValues="0 0 0 0 0 1 1 1 1 1" />
+				</feComponentTransfer>
+				
+				<!-- ## Result -->
+				<feFlood flood-color="#00000021" />
+				<feComposite operator="in" in2="outline--smoothed-mask" result="outline" />
+				
+				<!-- # Combine all -->
+				<feMerge>
+					<feMergeNode in="base-plate-shadow" />
+					<feMergeNode in="outline" />
+					<feMergeNode in="base-plate" />
+					<feMergeNode in="SourceGraphic" />
+				</feMerge>
+			</filter>
+		</svg>
+	</body>
+</html>
