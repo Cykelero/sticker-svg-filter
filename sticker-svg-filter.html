@@ -22,14 +22,34 @@
 	<body>
 		<!-- Content -->
 		<img src="test-bagel.png" class="test-element sticker-effect">
+		<img src="test-polaroid.png" class="test-element sticker-effect">
 		
 		<!-- Filter -->
 		<svg style="position: fixed; pointer-events: none; left: -1000px">
 			<filter id="sticker-effect">
 				<!-- # Base plate -->
+				<!-- ## Thresholded image -->
+				<!-- Only keep very opaque parts of image: Clip lower alpha, then boost remaining alpha -->
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 1 -0.7
+					" in="SourceGraphic" />
+				<feColorMatrix
+					type="matrix"
+					values="
+						1 0 0 0 0
+						0 1 0 0 0
+						0 0 1 0 0
+						0 0 0 100 0
+					" result="base-plate--thresholded-image" />
+				
 				<!-- ## Mask -->
 				<!-- Blur, then only keep strongest parts (clip lower alpha, then boost remaining alpha) -->
-				<feGaussianBlur stdDeviation="10" in="SourceGraphic" />
+				<feGaussianBlur stdDeviation="10" in="base-plate--thresholded-image" />
 				
 				<feColorMatrix
 					type="matrix"
